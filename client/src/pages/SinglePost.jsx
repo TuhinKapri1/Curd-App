@@ -2,29 +2,33 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { deletePost, getSinglePost } from "../services/postServices";
+import toast from "react-hot-toast";
 
 function SinglePost() {
   const { id } = useParams();
   const navigate = useNavigate();
-  console.log(id);
   const { data, isLoading } = useQuery({
     queryKey: ["fetchSinglePost"],
     queryFn: () => {
       return getSinglePost(id);
     },
   });
+  const { isPending, mutate } = useMutation({
+    mutationFn: deletePost,
+    onSuccess: (data) => {
+      
+      toast.success(data.message);
+      navigate("/");
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
   if (isLoading) {
     return <div>Loading ....</div>;
   }
-  console.log(data);
-  const deleteHandler = async () => {
-    try {
-      const res = await deletePost(id);
-      console.log(res);
-      navigate(-1);
-    } catch (err) {
-      console.log(err);
-    }
+  const deleteHandler = () => {
+    mutate(id);
   };
   return (
     <div className="flex gap-4 justify-center flex-col items-center mt-16">

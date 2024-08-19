@@ -78,6 +78,7 @@ class PostClass {
       );
       res.status(200).json({
         success: true,
+        message: "Post update successfully",
         data: updatedPost,
       });
     } catch (error) {
