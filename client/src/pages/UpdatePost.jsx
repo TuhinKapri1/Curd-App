@@ -40,31 +40,40 @@ function UpdatePost() {
 
   return (
     <div>
-      <div className="flex justify-center items-center">
+      <div className="flex flex-col justify-center items-center">
+        <div className="text-[22px] font-semibold mt-10 mb-4 ">
+          Update Your post
+        </div>
         <form
           onSubmit={handleSubmit(submithandler)}
           action=""
-          className="flex border p-3 flex-col gap-5 "
+          className="flex border w-[400px] p-3 flex-col gap-5 "
         >
-          <div>
-            <label htmlFor="">Enter Title</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="" className="text-[12px] font-semibold  ">
+              Enter Title
+            </label>
             <input
               type="text"
               {...register("title", { required: true })}
-              className="border  border-blue-600"
+              className="border px-3 text-[13px]  border-gray-400 rounded focus:border-0  py-2"
               defaultValue={data ? data?.data?.title : ""}
             />
           </div>
-          <div>
-            <label htmlFor="">Enter Description</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="" className="text-[12px] font-semibold  ">
+              Enter Description
+            </label>
             <input
               type="text"
               {...register("description", { required: true })}
-              className="border  border-blue-600"
+              className="border px-3 text-[13px]  border-gray-400 rounded focus:border-0  py-2"
               defaultValue={data ? data?.data?.description : ""}
             />
           </div>
-          <button>{false ? <>Loading ....</> : <> UpdatePost </>}</button>
+          <button className="bg-blue-600 mx-auto text-[13px] font-semibold text-white w-40 py-2 rounded-md">
+            {false ? <>Loading ....</> : <> UpdatePost </>}
+          </button>
         </form>
       </div>
     </div>

@@ -29,29 +29,36 @@ function CreatePost() {
   };
   return (
     <div className="w-full min-h-screen">
-      <div className="flex justify-center items-center">
+      <div className="flex flex-col mt-6 justify-center items-center">
+        <div className="text-[18px] font-semibold ">Create post</div>
         <form
           onSubmit={handleSubmit(submithandler)}
           action=""
-          className="flex border p-3 flex-col gap-5 "
+          className="flex mt-5 border  rounded-md w-[400px] p-3 flex-col gap-5 "
         >
-          <div>
-            <label htmlFor="">Enter Title</label>
+          <div className="flex gap-2 flex-col">
+            <label htmlFor="" className="text-[12px] font-semibold  ">
+              Enter Title
+            </label>
             <input
               type="text"
               {...register("title", { required: true })}
-              className="border  border-blue-600"
+              className="border  border-gray-400 rounded py-1"
             />
           </div>
-          <div>
-            <label htmlFor="">Enter Description</label>
+          <div className="flex gap-2 flex-col">
+            <label htmlFor="" className="text-[12px] font-semibold  ">
+              Enter Description
+            </label>
             <input
               type="text"
               {...register("description", { required: true })}
-              className="border  border-blue-600"
+              className="border  border-gray-400 rounded focus:border-0  py-1"
             />
           </div>
-          <button>Create Post</button>
+          <button className="bg-blue-600 mx-auto text-[13px] font-semibold text-white w-40 py-2 rounded-md">
+            Create Post
+          </button>
         </form>
       </div>
     </div>

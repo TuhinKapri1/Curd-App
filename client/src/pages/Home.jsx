@@ -18,7 +18,7 @@ function Home() {
       <div>
         <Link
           to="/create-post"
-          className="border rounded-md px-3 py-2 border-blue-400"
+          className="bg-blue-600 mx-auto text-[13px] px-5 font-semibold text-white w-80 py-2 rounded-md"
         >
           Create post
         </Link>
@@ -28,10 +28,22 @@ function Home() {
           <Link
             to={`/${ele?._id}`}
             key={index}
-            className="flex p-4 flex-col gap-4 border border-blue-300 rounded-md"
+            className="flex w-[280px] p-4 flex-col gap-4 border border-blue-300 rounded-md"
           >
-            <p>{ele?.title}</p>
-            <p>{ele?.description}</p>
+            <div className="flex gap-1">
+              <p>
+                Title :
+              </p>
+              <p>{ele?.title}</p>
+            </div>
+            <div className="flex gap-1">
+              <p>
+                Description :
+              </p>
+              <p>{ele?.description}</p>
+            </div>
+           
+            
           </Link>
         ))}
       </div>
