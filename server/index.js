@@ -1,15 +1,23 @@
-const express = require("express");
-const cors = require("cors");
-const { dbConnection } = require("./config/db.connection");
-const PostRouter=require('./routes/post.routes')
-require("dotenv").config();
+import express from "express";
+import cors from "cors";
+import { ProductRouter } from "./routes/product.routes.js";
+import { CategoryRouter } from "./routes/category.routes.js";
+import { dbConnection } from "./config/db.connection.js";
+import dotenv from "dotenv";
+import { AuthRouter } from "./routes/user.routes.js";
+import { CartRouter } from "./routes/cart.routes.js";
+dotenv.config();
 const app = express();
 
 app.use(express.json());
+app.use("/uploads", express.static("./uploads"));
 dbConnection();
 app.use(cors());
 
-app.use("/api/v1/post", PostRouter);
+app.use("/api/v1/product", ProductRouter);
+app.use("/api/v1/category", CategoryRouter);
+app.use("/api/v1/auth", AuthRouter);
+app.use('/api/v1/cart',CartRouter)
 
 const PORT = process.env.PORT || 4000;
 
