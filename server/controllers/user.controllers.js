@@ -8,6 +8,10 @@ class UserClass {
     try {
       const { email, password, name } = req.body;
 
+      console.log(req.body)
+
+      console.log(req.file)
+
       if (!email || !password || !name || !req.file) {
         return res.status(400).json({
           success: false,
@@ -54,6 +58,8 @@ class UserClass {
   signinUser = async (req, res) => {
     try {
       const { email, password } = req.body;
+
+      console.log(email)
       const isExistUser = await UserModel.findOne({ email: email });
 
       if (!isExistUser) {
