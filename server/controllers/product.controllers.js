@@ -60,6 +60,7 @@ class ProductClass {
   getSingleProduct = async (req, res) => {
     try {
       const { id } = req.params;
+      console.log(id)
       const product = await ProductModel.aggregate([
         {
           $match: { _id: new mongoose.Types.ObjectId(id) },
@@ -186,6 +187,24 @@ class ProductClass {
       res.status(500).json({
         success: false,
         message: err.message,
+      });
+    }
+  };
+
+  getUserProducts = async (req, res) => {
+    try {
+      const { id } = req.user;
+
+      const products = await ProductModel.find({ userId: id }).populate("category").populate("productVarients");
+      res.status(200).json({
+        success: true,
+        data: products,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
       });
     }
   };

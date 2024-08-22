@@ -7,9 +7,9 @@ function MainLayout({ children }) {
     <>
       {" "}
       <Nav />
-      <Container>
+      <div className="">
         <Box>{children}</Box>
-      </Container>
+      </div>
     </>
   );
 }

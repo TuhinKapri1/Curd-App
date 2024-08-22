@@ -19,7 +19,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/profileSlice";
 function Nav() {
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const { token } = useSelector((state) => state.profile);
   const pages = [{ name: "Home", path: "/" }];
   const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -87,7 +87,7 @@ function Nav() {
                   </IconButton>
                 </Tooltip>
                 <Menu
-                  sx={{ mt: "45px" ,padding:4}}
+                  sx={{ mt: "45px", padding: 4 }}
                   id="menu-appbar"
                   anchorEl={anchorElUser}
                   anchorOrigin={{
@@ -102,12 +102,24 @@ function Nav() {
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                 >
+                  <Stack
+                    sx={{ paddingY:1  }}
+                    direction="column"
+                    alignItems="center"
+                  >
+                    <Link to="/dashboard/profile" onClick={handleCloseUserMenu}>
+                      Dashboard
+                    </Link>
+                    <Button
+                      sx={{ paddingX: 4 }}
+                      onClick={() => {
+                        dispatch(logout());
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </Stack>
 
-                <Typography sx={{paddingX:4}} variant="contained" onClick={()=>{
-                  dispatch(logout())
-                }} >
-                  Logout
-                </Typography>
                   {/* {settings.map((setting) => (
                     <MenuItem key={setting} onClick={handleCloseUserMenu}>
                       <Typography textAlign="center" sx={{ color: "gray" }}>

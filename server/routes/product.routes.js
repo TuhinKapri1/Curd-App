@@ -14,6 +14,7 @@ ProductRouter.post(
   productController.createProduct
 );
 ProductRouter.get("/", productController.getAllProduct);
+ProductRouter.get("/user-product", isAuth, productController.getUserProducts);
 ProductRouter.get("/:id", productController.getSingleProduct);
 ProductRouter.put(
   "/:postId",
