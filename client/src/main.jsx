@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import ReactQueryProvider from "./provider/ReactQueryProvider.jsx";
 import toast, { Toaster } from "react-hot-toast";
 import ReduxProvider from "./provider/ReduxProvider.jsx";
+
 createRoot(document.getElementById("root")).render(
   <ReactQueryProvider>
     <BrowserRouter>

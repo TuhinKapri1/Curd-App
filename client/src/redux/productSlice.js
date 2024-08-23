@@ -1,8 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  step: 2,
-  product: null,
+  step: 1,
+  product: localStorage.getItem("product")
+    ? JSON.parse(localStorage.getItem("product"))
+    : null,
+  productVariant: [],
+  isUpdate: false,
 };
 
 const productSlice = createSlice({
@@ -14,10 +18,18 @@ const productSlice = createSlice({
     },
     setProduct: (state, { payload }) => {
       state.product = payload;
-      localStorage.setItem("product", JSON.stringify(payload));
+      // localStorage.setItem("product", JSON.stringify(payload));
+    },
+    setUpadte: (state, { payload }) => {
+      state.isUpdate = payload;
+    },
+    setProductVariant: (state, { payload }) => {
+      state.productVariant = payload;
+      localStorage.setItem("productVariant", JSON.stringify(payload));
     },
   },
 });
 
 export default productSlice.reducer;
-export const { setStep, setProduct } = productSlice.actions;
+export const { setStep, setProduct, setUpadte, setProductVariant } =
+  productSlice.actions;

@@ -13,29 +13,49 @@ import {
 } from "@mui/material";
 import Input from "../../../Input";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllCategory } from "../../../../services/categoryServices";
 import toast from "react-hot-toast";
-import { createProduct } from "../../../../services/productServices";
+import {
+  createProduct,
+  updateProduct,
+} from "../../../../services/productServices";
 import { useDispatch, useSelector } from "react-redux";
 import { setProduct, setStep } from "../../../../redux/productSlice";
+import RHFSelect from "../../../form/RHFSelect";
+import { getImageFromBackend } from "../../../../helper/helper";
 
 function ProductInfoForm() {
   const dispatch = useDispatch();
-  const [selectValue, setSelectValue] = useState();
+  const queryClient = useQueryClient();
+  const { product, isUpdate } = useSelector((state) => state.product);
+  console.log(product, isUpdate);
   const [img, setImg] = useState(null);
   const { data, isLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: getAllCategory,
   });
 
-  const { isPending, mutate } = useMutation({
+  const { isPending: crateIsPending, mutate: crateMutate } = useMutation({
     mutationFn: createProduct,
     onSuccess: (data) => {
       console.log(data);
       toast.success(data.messgae);
-      dispatch(setProduct(data?.data))
+      dispatch(setProduct(data?.data));
       dispatch(setStep(2));
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const { isPending: updateIsPending, mutate: updateMutate } = useMutation({
+    mutationFn: updateProduct,
+    onSuccess: (data) => {
+      console.log(data);
+      dispatch(setProduct(data?.data));
+      dispatch(setStep(2));
+      queryClient.invalidateQueries({ queryKey: ["fetchUserProduct"] });
     },
     onError: (err) => {
       console.log(err);
@@ -47,28 +67,52 @@ function ProductInfoForm() {
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
+    getValues,
   } = useForm({
     resolver: yupResolver(productInfoValidation),
     mode: "onBlur",
   });
 
   const submitHandler = (data) => {
-    if (!img) {
-      return toast.error("Thumbnail is required");
-    }
+    console.log(data);
     const formData = new FormData();
+    if (!isUpdate) {
+      if (!img) {
+        return toast.error("Thumbnail is required");
+      }
+
+      formData.append("name", data?.name);
+      formData.append("description", data?.description);
+      formData.append("category", data?.category);
+      formData.append("thumbnail", img);
+
+      return crateMutate(formData);
+    }
+
+    console.log(img);
+
     formData.append("name", data?.name);
     formData.append("description", data?.description);
     formData.append("category", data?.category);
-    formData.append("thumbnail", img);
-    mutate(formData);
+    if (img) {
+      formData.append("thumbnail", img);
+    }
+
+    updateMutate({ id: product?._id, data: formData });
   };
 
   useEffect(() => {
-    setValue("category", selectValue);
-  }, [selectValue, setValue]);
+    if (isUpdate) {
+      reset({
+        name: product?.name,
+        description: product?.description,
+        category: product?.category,
+      });
+      setValue("image", product?.thumbnail);
+    }
+  }, [isUpdate, product]);
 
-  console.log(errors);
   return (
     <div>
       <Box
@@ -105,13 +149,33 @@ function ProductInfoForm() {
             sx={{ width: 1 / 1, paddingBottom: 2 }}
             justifyContent="center"
           >
-            <img
-              src={img ? URL.createObjectURL(img) : ""}
-              alt="Profile Picture"
-              className="border rounded-md p-4"
-              width={500}
-              height={100}
-            ></img>
+            {isUpdate ? (
+              img ? (
+                <img
+                  src={img ? URL.createObjectURL(img) : ""}
+                  alt="Thumbnail"
+                  className="border rounded-md p-4"
+                  width={500}
+                  height={100}
+                ></img>
+              ) : (
+                <img
+                  src={getImageFromBackend(getValues()?.image)}
+                  alt="Thumbnail"
+                  className="border rounded-md p-4"
+                  width={500}
+                  height={100}
+                ></img>
+              )
+            ) : (
+              <img
+                src={img ? URL.createObjectURL(img) : ""}
+                alt="Thumbnail"
+                className="border rounded-md p-4"
+                width={500}
+                height={100}
+              ></img>
+            )}
           </Stack>
           <Button
             variant="contained"
@@ -131,46 +195,62 @@ function ProductInfoForm() {
             />
           </Button>
 
-          <FormControl fullWidth error={!!errors.category}>
-            <InputLabel id="demo-simple-select-label">
-              Select Category
-            </InputLabel>
+          <RHFSelect
+            name="category"
+            control={control}
+            label="Select Category"
+            error={!!errors?.category}
+            helperText={errors?.category?.message}
+          >
+            {data?.data?.map((ele, index) => {
+              return (
+                <MenuItem key={index} value={ele._id}>
+                  {ele?.name}
+                </MenuItem>
+              );
+            })}
+          </RHFSelect>
 
-            <Controller
-              name="category"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  label="Select Category"
-                  onChange={(e) => {
-                    setSelectValue(e.target.value);
-                    console.log(e.target);
-                  }}
-                  // value={"66c43a88e4631008aaa9439a"}
-                >
-                  {data?.data?.map((ele, index) => {
-                    return (
-                      <MenuItem key={index} value={ele._id}>
-                        {ele?.name}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              )}
-            />
-          </FormControl>
           <Stack direction="row" justifyContent="end" sx={{ width: 1 / 1 }}>
-            <LoadingButton
-              type="submit"
-              fullWidth
-              loading={isPending}
-              variant="contained"
-              color="primary"
-              sx={{ mt: 3, mb: 2, width: 100 }}
-            >
-              Save
-            </LoadingButton>
+            {isUpdate ? (
+              <>
+                <Stack direction="row" sx={{ gap: 2 }}>
+                  <LoadingButton
+                    type="button"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    sx={{ mt: 3, mb: 2, width: 200 }}
+                    onClick={() => {
+                      dispatch(setStep(2));
+                    }}
+                  >
+                    Without Save
+                  </LoadingButton>
+                  <LoadingButton
+                    type="submit"
+                    fullWidth
+                    loading={updateIsPending}
+                    variant="contained"
+                    color="primary"
+                    sx={{ mt: 3, mb: 2, width: 100 }}
+                  >
+                    update
+                  </LoadingButton>
+                </Stack>
+              </>
+            ) : (
+              <LoadingButton
+                type="submit"
+                fullWidth
+                loading={crateIsPending}
+                variant="contained"
+                color="primary"
+                sx={{ mt: 3, mb: 2, width: 100 }}
+              >
+                Save
+              </LoadingButton>
+            )}
           </Stack>
         </Box>
       </Box>

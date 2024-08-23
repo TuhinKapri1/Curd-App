@@ -12,6 +12,8 @@ import OpenRoute from "./components/auth/OpenRoute";
 import CreateProduct from "./components/dashboard/createProduct/CreateProduct";
 import MyProduct from "./components/dashboard/MyProduct";
 import SingleProductPage from "./pages/SingleProductPage";
+import CartPage from "./pages/CartPage";
+import EditPage from "./pages/EditPage";
 
 function App() {
   return (
@@ -45,6 +47,8 @@ function App() {
           <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard/create-product" element={<CreateProduct />} />
           <Route path="/dashboard/my-product" element={<MyProduct />} />
+          <Route path="/dashboard/cart" element={<CartPage />} />
+          <Route path="/dashbaord/edit-product/:id" element={<EditPage />} />
         </Route>
       </Routes>
     </MainLayout>

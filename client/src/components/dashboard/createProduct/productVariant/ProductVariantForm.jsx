@@ -7,36 +7,58 @@ import {
   MenuItem,
   Select,
   Stack,
+  Typography,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { Controller, useController, useForm } from "react-hook-form";
 import Input from "../../../Input";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { productVariantValidation } from "../../../../validation/productVariantInfo";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setStep } from "../../../../redux/productSlice";
+import { setProduct, setStep, setUpadte } from "../../../../redux/productSlice";
 import { useMutation } from "@tanstack/react-query";
-import { createProductVariant } from "../../../../services/productServices";
+import {
+  createProductVariant,
+  updateProductVariant,
+} from "../../../../services/productServices";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import RHFSelect from "../../../form/RHFSelect";
 
-function ProductVariantForm() {
+function ProductVariantForm({ handleClose, isEdit, editData }) {
   const dispatch = useDispatch();
-  const navigate=useNavigate()
-  const { product } = useSelector((state) => state.product);
-  console.log(product);
-  const [selectSizeValue, setSelectSizeValue] = useState(null);
-  const [selectColorValue, setSelectColorValue] = useState(null);
+  const navigate = useNavigate();
 
-  const { mutate, isPending } = useMutation({
+  const { product } = useSelector((state) => state.product);
+
+  const { mutate: createMutate, isPending: isCreatePending } = useMutation({
     mutationFn: createProductVariant,
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      const arr = [...product?.productVarients, data?.data];
+      dispatch(setProduct({ ...product, productVarients: arr }));
+      handleClose();
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message);
+    },
+  });
+
+  const { isPending: isUpdatePending, mutate: updateMutate } = useMutation({
+    mutationFn: updateProductVariant,
     onSuccess: (data) => {
       console.log(data);
       toast.success(data?.message);
-      navigate('/dashboard/my-product')
+      const arr = [...product?.productVarients];
+      const index = arr.findIndex((variant) => variant._id === editData?._id);
+      arr[index] = data?.data;
+      dispatch(setProduct({ ...product, productVarients: arr }));
+      handleClose();
     },
     onError: (err) => {
       console.log(err);
+      toast.error(err?.response?.data?.message);
     },
   });
   const {
@@ -44,20 +66,21 @@ function ProductVariantForm() {
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
   } = useForm({
     resolver: yupResolver(productVariantValidation),
     mode: "onBlur",
   });
 
-  const { field } = useController({
-    name: "size",
-    control,
-    rules: { required: true },
-  });
-
   const submitHandler = (data) => {
-    console.log(data);
-    mutate({ data: data, productId: product?._id });
+    if (isEdit) {
+      return updateMutate({
+        data: data,
+        productId: product?._id,
+        productVariantId: editData._id,
+      });
+    }
+    createMutate({ data: data, productId: product?._id });
   };
 
   console.log(errors);
@@ -66,9 +89,13 @@ function ProductVariantForm() {
   const color = ["Black", "White", "Red", "Blue"];
 
   useEffect(() => {
-    setValue("color", selectColorValue);
-    setValue("size", selectSizeValue);
-  }, [selectSizeValue, selectColorValue]);
+    reset({
+      color: editData?.color,
+      size: editData?.size,
+      price: editData?.price,
+      quantity: editData?.quantity,
+    });
+  }, [isEdit, editData]);
 
   return (
     <div>
@@ -80,12 +107,33 @@ function ProductVariantForm() {
           mt: 0,
         }}
       >
-        <Box
+        <Stack
           component="form"
           onSubmit={handleSubmit(submitHandler)}
           noValidate
-          sx={{ mt: 0 }}
+          sx={{ mt: 0, width: "400px", gap: 2 }}
         >
+          <Stack direction="row" justifyContent="space-between" sx={{ gap: 3 }}>
+            <Typography
+              id="modal-modal-title"
+              variant="h6"
+              component="h2"
+              sx={{ marginLeft: 2 }}
+            >
+              {isEdit ? (
+                <>Update Product variant</>
+              ) : (
+                <>Create Product variant</>
+              )}
+            </Typography>
+            <Button
+              onClick={() => {
+                handleClose();
+              }}
+            >
+              <CloseIcon color="balck" />
+            </Button>
+          </Stack>
           <Input
             label="price"
             control={control}
@@ -101,91 +149,82 @@ function ProductVariantForm() {
             helperText={errors.quantity && errors.quantity.message}
           />
 
-          <FormControl fullWidth error={!!errors.size}>
-            <InputLabel id="demo-simple-select-label">Select size</InputLabel>
-
-            <Controller
-              name="size"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  label="Select size"
-                  onChange={(e) => {
-                    setSelectSizeValue(e.target.value);
-                    console.log(e.target);
-                  }}
-                  // value={"66c43a88e4631008aaa9439a"}
-                >
-                  {size?.map((ele, index) => {
-                    return (
-                      <MenuItem key={index} value={ele}>
-                        {ele}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              )}
-            />
-          </FormControl>
-          <FormControl sx={{ marginTop: 2 }} fullWidth error={!!errors.color}>
-            <InputLabel id="demo-simple-select-label">Select color</InputLabel>
-
-            <Controller
-              name="color"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  label="Select Category"
-                  onChange={(e) => {
-                    setSelectColorValue(e.target.value);
-                    console.log(e.target);
-                  }}
-                  // value={"66c43a88e4631008aaa9439a"}
-                >
-                  {color?.map((ele, index) => {
-                    return (
-                      <MenuItem key={index} value={ele}>
-                        {ele}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              )}
-            />
-          </FormControl>
-
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            sx={{ width: 1 / 1 }}
+          <RHFSelect
+            label="Select Size"
+            name="size"
+            control={control}
+            error={!!errors?.size}
+            helperText={errors.size?.message}
           >
-            <Button
-              type="button"
-              fullWidth
-              loading={false}
-              variant="contained"
-              color="primary"
-              sx={{ mt: 3, mb: 2, width: 100 }}
-              onClick={() => {
-                dispatch(setStep(1));
-              }}
-            >
-              Back
-            </Button>
-            <LoadingButton
-              type="submit"
-              fullWidth
-              loading={isPending}
-              variant="contained"
-              color="primary"
-              sx={{ mt: 3, mb: 2, width: 100 }}
-            >
-              Save
-            </LoadingButton>
+            {size?.map((ele, index) => {
+              return (
+                <MenuItem key={index} value={ele}>
+                  {ele}
+                </MenuItem>
+              );
+            })}
+          </RHFSelect>
+
+          <RHFSelect
+            label="Select color"
+            name="color"
+            control={control}
+            error={!!errors?.color}
+            helperText={errors.color?.message}
+          >
+            {color?.map((ele, index) => {
+              return (
+                <MenuItem key={index} value={ele}>
+                  {ele}
+                </MenuItem>
+              );
+            })}
+          </RHFSelect>
+
+          <Stack direction="row" justifyContent="end" sx={{ width: 1 / 1 }}>
+            <Stack direction="row" sx={{ gap: 1 }}>
+              <LoadingButton
+                type="button"
+                onClick={() => {
+                  handleClose();
+                }}
+                fullWidth
+                variant="contained"
+                color="error"
+                sx={{ mt: 3, mb: 2, width: 100 }}
+              >
+                Cancel
+              </LoadingButton>
+              {isEdit ? (
+                <>
+                  <LoadingButton
+                    type="submit"
+                    fullWidth
+                    loading={isUpdatePending}
+                    variant="contained"
+                    color="primary"
+                    sx={{ mt: 3, mb: 2, width: 100 }}
+                  >
+                    Update
+                  </LoadingButton>
+                </>
+              ) : (
+                <>
+                  <LoadingButton
+                    type="submit"
+                    fullWidth
+                    loading={isCreatePending}
+                    variant="contained"
+                    color="primary"
+                    sx={{ mt: 3, mb: 2, width: 100 }}
+                  >
+                    Save
+                  </LoadingButton>
+                </>
+              )}
+            </Stack>
           </Stack>
-        </Box>
+        </Stack>
       </Box>
     </div>
   );

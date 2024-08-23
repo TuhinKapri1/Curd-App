@@ -33,11 +33,15 @@ class ProductVariantClass {
         quantity: parseInt(quantity),
         size,
       });
+      let productvariant;
       if (isAlreadyExist) {
         isAlreadyExist.quantity += parseInt(quantity);
         await isAlreadyExist.save();
+        productvariant = await ProductVarientModel.findOne({
+          _id: isAlreadyExist._id,
+        });
       } else {
-        const productvariant = await ProductVarientModel.create({
+        productvariant = await ProductVarientModel.create({
           price: parseInt(price),
           color,
           quantity: parseInt(quantity),
@@ -61,6 +65,7 @@ class ProductVariantClass {
       res.status(200).json({
         success: true,
         message: "Product Variant create successfully",
+        data: productvariant,
       });
     } catch (err) {
       console.log(err);

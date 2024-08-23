@@ -60,7 +60,7 @@ class ProductClass {
   getSingleProduct = async (req, res) => {
     try {
       const { id } = req.params;
-      console.log(id)
+      console.log(id);
       const product = await ProductModel.aggregate([
         {
           $match: { _id: new mongoose.Types.ObjectId(id) },
@@ -102,12 +102,20 @@ class ProductClass {
         },
       ]);
 
+      const singleproduct = await ProductModel.findById({
+        _id: id,
+        status: "Public",
+      })
+        .populate("category")
+        .populate("productVarients");
+
       console.log(product);
 
       res.status(200).json({
         success: true,
         message: "Fetch successfuly",
         data: product,
+        product: singleproduct,
       });
     } catch (err) {
       console.log("Error happen in get single Product", err);
@@ -121,11 +129,10 @@ class ProductClass {
     try {
       const { postId } = req.params;
       const { id } = req.user;
-
+      console.log(req.body);
+      console.log(req.file);
       const isProductOwnerSame = await ProductModel.findById({ _id: postId });
 
-      console.log(isProductOwnerSame.userId.toString());
-      console.log(id);
       if (isProductOwnerSame.userId.toString() !== id) {
         return res.status(403).json({
           success: false,
@@ -142,7 +149,9 @@ class ProductClass {
           },
         },
         { new: true }
-      );
+      )
+        .populate("category")
+        .populate("productVarients");
 
       res.status(200).json({
         success: true,
@@ -195,7 +204,9 @@ class ProductClass {
     try {
       const { id } = req.user;
 
-      const products = await ProductModel.find({ userId: id }).populate("category").populate("productVarients");
+      const products = await ProductModel.find({ userId: id })
+        .populate("category")
+        .populate("productVarients");
       res.status(200).json({
         success: true,
         data: products,

@@ -8,6 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import AdbIcon from "@mui/icons-material/Adb";
 import { Link } from "react-router-dom";
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import {
   Avatar,
   Container,
@@ -77,7 +78,11 @@ function Nav() {
             </Box>
 
             {token ? (
-              <Box sx={{ flexGrow: 0 }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                sx={{ flexGrow: 0, gap: 2 }}
+              >
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                     <Avatar
@@ -103,7 +108,7 @@ function Nav() {
                   onClose={handleCloseUserMenu}
                 >
                   <Stack
-                    sx={{ paddingY:1  }}
+                    sx={{ paddingY: 1 }}
                     direction="column"
                     alignItems="center"
                   >
@@ -119,16 +124,12 @@ function Nav() {
                       Logout
                     </Button>
                   </Stack>
-
-                  {/* {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      <Typography textAlign="center" sx={{ color: "gray" }}>
-                        {setting}
-                      </Typography>
-                    </MenuItem>
-                  ))} */}
                 </Menu>
-              </Box>
+
+                <Link to='/dashboard/cart' className="text-black">
+                  <ShoppingCartIcon    />
+                </Link>
+              </Stack>
             ) : (
               <Stack direction="row" sx={{}}>
                 <Link to="/sign-in">

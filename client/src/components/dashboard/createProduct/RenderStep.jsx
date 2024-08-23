@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import ProductInfoForm from "./productInfo/ProductInfoForm";
 import ProductVariantForm from "./productVariant/ProductVariantForm";
 import { FaCheck } from "react-icons/fa";
+import ProductVariant from "./productVariant/ProductVariant";
 function RenderStep() {
   const { step } = useSelector((state) => state.product);
   const steps = [
@@ -26,10 +27,10 @@ function RenderStep() {
                   step === item.id
                     ? "border-blue-500 bg-minBlue text-gray"
                     : ""
-                } ${step > item.id && "bg-minBlue text-yellow-50"}} `}
+                } ${step > item.id && "bg-gray text-white"}} `}
               >
                 {step > item.id ? (
-                  <FaCheck className="font-bold text-white" />
+                  <FaCheck className="font-bold text-gray" />
                 ) : (
                   item.id
                 )}
@@ -39,7 +40,7 @@ function RenderStep() {
               <>
                 <div
                   className={`h-[calc(34px/2)] w-[33%]  border-dashed border-b-2 ${
-                    step > item.id ? "border-minBlue" : "border-richblack-500"
+                    step > item.id ? "border-gray" : "border-richblack-500"
                   } `}
                 ></div>
               </>
@@ -68,7 +69,7 @@ function RenderStep() {
       </div>
     
       {step === 1 && <ProductInfoForm />}
-      {step === 2 && <ProductVariantForm />}
+      {step === 2 && <ProductVariant />}
     </div>
   );
 }

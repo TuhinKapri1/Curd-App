@@ -90,7 +90,7 @@ class UserClass {
         token: token,
       });
     } catch (err) {
-      console.log("Error happen in signinUser");
+      console.log("Error happen in signinUser",err);
       res.status(500).json({
         success: false,
         message: err.message,
