@@ -6,6 +6,7 @@ import { dbConnection } from "./config/db.connection.js";
 import dotenv from "dotenv";
 import { AuthRouter } from "./routes/user.routes.js";
 import { CartRouter } from "./routes/cart.routes.js";
+import { OrderRouter } from "./routes/order.routes.js";
 dotenv.config();
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/api/v1/product", ProductRouter);
 app.use("/api/v1/category", CategoryRouter);
 app.use("/api/v1/auth", AuthRouter);
 app.use('/api/v1/cart',CartRouter)
+app.use('/api/v1/order',OrderRouter)
 
 const PORT = process.env.PORT || 4000;
 

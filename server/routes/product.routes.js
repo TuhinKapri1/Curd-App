@@ -15,6 +15,11 @@ ProductRouter.post(
 );
 ProductRouter.get("/", productController.getAllProduct);
 ProductRouter.get("/user-product", isAuth, productController.getUserProducts);
+ProductRouter.get(
+  "/user-order",
+  isAuth,
+  productController.getUserOrderedProducts
+);
 ProductRouter.get("/:id", productController.getSingleProduct);
 ProductRouter.put(
   "/:postId",

@@ -7,6 +7,7 @@ function Sidebar() {
     { name: "Your Profile", path: "/dashboard/profile" },
     { name: "Create Product", path: "/dashboard/create-product" },
     { name: "Your Product", path: "/dashboard/my-product" },
+    { name: "Your Order", path: "/dashboard/order" },
   ];
   return (
     <div className="border min-h-screen ">

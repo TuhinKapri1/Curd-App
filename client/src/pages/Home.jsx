@@ -19,7 +19,7 @@ function Home() {
   console.log(data);
 
   return (
-    <div className="">
+    <div className="flex gap-5 flex-wrap">
       {data?.data?.map((ele, index) => {
         return <ProductCard key={index} data={ele} />;
       })}

@@ -1,25 +1,116 @@
 import { Button, Container, Stack } from "@mui/material";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getImageFromBackend } from "../helper/helper";
+import { axiosInstance, getImageFromBackend } from "../helper/helper";
 import CloseIcon from "@mui/icons-material/Close";
 import {
   decrementCartItem,
   incrementCartItem,
   productRemoveFromCart,
+  setCartValue,
 } from "../redux/cartSlice";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 function CartPage() {
+  const navigate = useNavigate();
+  const initializeRazorpay = async () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+
+      document.body.appendChild(script);
+    });
+  };
+
+  const { isPending: veryPending, mutate: verifyOrderMutate } = useMutation({
+    mutationFn: async (data) => {
+      try {
+        const res = await axiosInstance.post("/order/verify-order", data);
+        return res.data;
+      } catch (err) {
+        return Promise.reject(err);
+      }
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      toast.success("Order placed successfully");
+      dispatch(setCartValue([]));
+      navigate("/dashboard/order");
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
   const { cartItems } = useSelector((state) => state?.cart);
+  console.log(cartItems);
+  const { isPending: createOrderPending, mutate: createOrderMutate } =
+    useMutation({
+      mutationFn: async (data) => {
+        try {
+          const res = await axiosInstance.post("/order/create-order", data);
+          return res.data;
+        } catch (err) {
+          return Promise.reject(err);
+        }
+      },
+      onSuccess: (data) => {
+        console.log(data);
+        var options = {
+          key: "rzp_test_pCn23sTAT9sll0",
+          name: "Choose Your payment option",
+          currency: data?.currency,
+          amount: data?.amount,
+          order_id: data?.orderId,
+          description: "Thankyou for your test donation",
+          handler: function (response) {
+            verifyOrderMutate({
+              ...response,
+              products: JSON.stringify(cartItems),
+            });
+
+            console.log(response);
+          },
+        };
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.open();
+      },
+      onError: (err) => {
+        console.log(err);
+      },
+    });
 
   const dispatch = useDispatch();
 
   const removeFromCartHandler = (data) => {
     dispatch(productRemoveFromCart(data));
   };
+
+  const checkOutHandler = async () => {
+    createOrderMutate({
+      products: JSON.stringify(cartItems),
+    });
+    const res = await initializeRazorpay();
+
+    if (!res) {
+      alert("Razorpay SDK Failed to load");
+      return;
+    }
+    console.log(res);
+  };
+
   return (
     <Container sx={{ marginTop: 5 }}>
       <Stack>
-        <Stack sx={{gap:3}}>
+        <Stack sx={{ gap: 3 }}>
           {cartItems.length > 0 ? (
             <>
               {cartItems?.map((item, index) => (
@@ -87,13 +178,19 @@ function CartPage() {
                 </Stack>
               ))}
 
-              <Stack  sx={{ marginTop: 7, }} direction="row" justifyContent="end">
-                <Stack sx={{gap:3}}>
+              <Stack sx={{ marginTop: 7 }} direction="row" justifyContent="end">
+                <Stack sx={{ gap: 3 }}>
                   <div>
                     Subtotal : $
                     {cartItems.reduce((acc, curr) => acc + curr.totalPrice, 0)}
                   </div>
-                  <Button variant="outlined" sx={{ width: "100px" }}>
+                  <Button
+                    onClick={() => {
+                      checkOutHandler();
+                    }}
+                    variant="outlined"
+                    sx={{ width: "100px" }}
+                  >
                     Checkout
                   </Button>
                 </Stack>

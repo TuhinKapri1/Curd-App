@@ -14,6 +14,7 @@ import MyProduct from "./components/dashboard/MyProduct";
 import SingleProductPage from "./pages/SingleProductPage";
 import CartPage from "./pages/CartPage";
 import EditPage from "./pages/EditPage";
+import YourOrder from "./components/dashboard/YourOrder";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route path="/dashboard/my-product" element={<MyProduct />} />
           <Route path="/dashboard/cart" element={<CartPage />} />
           <Route path="/dashbaord/edit-product/:id" element={<EditPage />} />
+          <Route path='/dashboard/order' element={<YourOrder/>}/>
         </Route>
       </Routes>
     </MainLayout>

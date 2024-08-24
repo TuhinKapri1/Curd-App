@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { ProductModel } from "../models/product.model.js";
 import { ProductVarientModel } from "../models/productVariant.models.js";
+import { OrderModel } from "../models/order.model.js";
 
 class ProductClass {
   createProduct = async (req, res) => {
@@ -43,8 +44,6 @@ class ProductClass {
         .populate("category")
         .populate("productVarients");
 
-
-        
       res.status(200).json({
         success: true,
         message: "All products fetched successfully",
@@ -61,7 +60,7 @@ class ProductClass {
   getSingleProduct = async (req, res) => {
     try {
       const { id } = req.params;
-      console.log(id);
+
       const product = await ProductModel.aggregate([
         {
           $match: { _id: new mongoose.Types.ObjectId(id) },
@@ -109,8 +108,6 @@ class ProductClass {
       })
         .populate("category")
         .populate("productVarients");
-
-      console.log(product);
 
       res.status(200).json({
         success: true,
@@ -214,6 +211,25 @@ class ProductClass {
       });
     } catch (err) {
       console.log(err);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  };
+
+  getUserOrderedProducts = async (req, res) => {
+    try {
+      const orderedProduct = await OrderModel.findOne({
+        userId: req.user.id,
+      }).populate("orderItems.productId");
+      res.status(200).json({
+        success: true,
+        message: "Get Your order",
+        data: orderedProduct,
+      });
+    } catch (err) {
+      console.log("Error happen in getUserOrderedProducts", err);
       res.status(500).json({
         success: false,
         message: "Internal server error",

@@ -20,8 +20,6 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-
-
-export const getImageFromBackend=(image)=>{
-  return `${baseUrl}/uploads/${image}`
-}
+export const getImageFromBackend = (image) => {
+  return `${baseUrl}/uploads/${image}`;
+};
