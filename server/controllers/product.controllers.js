@@ -39,7 +39,12 @@ class ProductClass {
   };
   getAllProduct = async (req, res) => {
     try {
-      const products = await ProductModel.find({}).
+      const products = await ProductModel.find({})
+        .populate("category")
+        .populate("productVarients");
+
+
+        
       res.status(200).json({
         success: true,
         message: "All products fetched successfully",

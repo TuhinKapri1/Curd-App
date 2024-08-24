@@ -8,7 +8,7 @@ function Home() {
     queryKey: ["getAll"],
     queryFn: async () => {
       const res = await axiosInstance.get("/product");
-      return res.data;
+      return res?.data;
     },
   });
 
