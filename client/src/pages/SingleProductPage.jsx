@@ -223,7 +223,12 @@ function SingleProductPage() {
                 </>
               ) : (
                 <>
-                  <Link to="/sign-in">Sign In To Buy</Link>
+                  <Link
+                    to="/sign-in"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md border-gray    "
+                  >
+                    Sign In To Buy
+                  </Link>
                 </>
               )}
 
