@@ -203,7 +203,7 @@ function SingleProductPage() {
               sx={{ gap: 2, marginTop: 4 }}
               justifyContent="space-between"
             >
-              {token && (
+              {token ? (
                 <>
                   {checkIncludeOrNot(data) ? (
                     <>
@@ -220,6 +220,10 @@ function SingleProductPage() {
                       </Button>
                     </>
                   )}
+                </>
+              ) : (
+                <>
+                  <Link to="/sign-in">Sign In To Buy</Link>
                 </>
               )}
 
