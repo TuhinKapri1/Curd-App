@@ -39,11 +39,7 @@ class ProductClass {
   };
   getAllProduct = async (req, res) => {
     try {
-      const products = await ProductModel.aggregate([
-        {
-          $match: {},
-        },
-      ]);
+      const products = await ProductModel.find({}).
       res.status(200).json({
         success: true,
         message: "All products fetched successfully",
