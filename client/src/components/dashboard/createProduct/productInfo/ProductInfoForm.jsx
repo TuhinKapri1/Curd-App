@@ -21,10 +21,10 @@ import {
   updateProduct,
 } from "../../../../services/productServices";
 import { useDispatch, useSelector } from "react-redux";
-import { setProduct, setStep } from "../../../../redux/productSlice";
+import { setProduct, setStep, setUpadte } from "../../../../redux/productSlice";
 import RHFSelect from "../../../form/RHFSelect";
 import { getImageFromBackend } from "../../../../helper/helper";
-
+import { DevTool } from "@hookform/devtools";
 function ProductInfoForm() {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -74,8 +74,8 @@ function ProductInfoForm() {
     mode: "onBlur",
   });
 
-  const submitHandler = (data) => {
-    console.log(data);
+  const submitHandler = (value) => {
+    console.log(value);
     const formData = new FormData();
     if (!isUpdate) {
       if (!img) {
@@ -92,9 +92,9 @@ function ProductInfoForm() {
 
     console.log(img);
 
-    formData.append("name", data?.name);
-    formData.append("description", data?.description);
-    formData.append("category", data?.category);
+    formData.append("name", value?.name);
+    formData.append("description", value?.description);
+    formData.append("category", value?.category);
     if (img) {
       formData.append("thumbnail", img);
     }
@@ -102,16 +102,22 @@ function ProductInfoForm() {
     updateMutate({ id: product?._id, data: formData });
   };
 
+  if (isUpdate && product) {
+    setValue("category", product?.category?._id);
+  }
+
   useEffect(() => {
+    console.log("I am update mode");
     if (isUpdate) {
-      reset({
-        name: product?.name,
-        description: product?.description,
-        category: product?.category,
-      });
+      setValue("name", product?.name);
+      setValue("description", product?.description);
+      setValue("category", product?.category?._id);
       setValue("image", product?.thumbnail);
     }
-  }, [isUpdate, product]);
+  }, []);
+
+  console.log(getImageFromBackend(getValues()?.image));
+  console.log(getValues());
 
   return (
     <div>
@@ -149,7 +155,35 @@ function ProductInfoForm() {
             sx={{ width: 1 / 1, paddingBottom: 2 }}
             justifyContent="center"
           >
-            {isUpdate ? (
+            <>
+              {isUpdate ? (
+                <>
+                  <img
+                    width={500}
+                    height={100}
+                    className="border rounded-md p-4"
+                    src={
+                      img
+                        ? URL.createObjectURL(img)
+                        : getImageFromBackend(product && product?.thumbnail)
+                    }
+                    alt="asefwerg3"
+                  />
+                </>
+              ) : (
+                <>
+                  <img
+                    src={img ? URL.createObjectURL(img) : ""}
+                    alt="Thumbnail"
+                    className="border rounded-md p-4"
+                    width={500}
+                    height={100}
+                  ></img>
+                </>
+              )}
+            </>
+
+            {/* {isUpdate ? (
               img ? (
                 <img
                   src={img ? URL.createObjectURL(img) : ""}
@@ -168,14 +202,15 @@ function ProductInfoForm() {
                 ></img>
               )
             ) : (
-              <img
-                src={img ? URL.createObjectURL(img) : ""}
-                alt="Thumbnail"
-                className="border rounded-md p-4"
-                width={500}
-                height={100}
-              ></img>
-            )}
+              <></>
+              // <img
+              //   src={img ? URL.createObjectURL(img) : ""}
+              //   alt="Thumbnail"
+              //   className="border rounded-md p-4"
+              //   width={500}
+              //   height={100}
+              // ></img>
+            )} */}
           </Stack>
           <Button
             variant="contained"
@@ -191,6 +226,7 @@ function ProductInfoForm() {
               hidden
               onChange={(e) => {
                 setImg(e.target.files[0]);
+                setValue("image", null);
               }}
             />
           </Button>
@@ -204,7 +240,7 @@ function ProductInfoForm() {
           >
             {data?.data?.map((ele, index) => {
               return (
-                <MenuItem key={index} value={ele._id}>
+                <MenuItem key={index} value={ele?._id}>
                   {ele?.name}
                 </MenuItem>
               );
@@ -223,6 +259,7 @@ function ProductInfoForm() {
                     sx={{ mt: 3, mb: 2, width: 200 }}
                     onClick={() => {
                       dispatch(setStep(2));
+                      setUpadte(false);
                     }}
                   >
                     Without Save
@@ -253,6 +290,7 @@ function ProductInfoForm() {
             )}
           </Stack>
         </Box>
+        <DevTool control={control} />
       </Box>
     </div>
   );
